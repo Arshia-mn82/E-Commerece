@@ -3,7 +3,11 @@ package main
 import (
 	"E-Commerce/internal/config"
 	"E-Commerce/internal/db"
+	"E-Commerce/internal/handler"
 	"E-Commerce/internal/model"
+	"E-Commerce/internal/repository"
+	"E-Commerce/internal/router"
+	"E-Commerce/internal/service"
 	"fmt"
 	"log"
 
@@ -36,10 +40,13 @@ func main() {
 		AppName: "Arshia E-Commerce",
 	})
 
-	app.Get("/health", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{
-			"status": "ok",
-		})
+	userRepo := repository.NewUserRepository(dbConn)
+	authService := service.NewAuthService(userRepo, cfg.JWTSecret)
+	authHandler := handler.NewAuthHandler(authService, userRepo)
+
+	router.Setup(app, router.Deps{
+		AuthHandler: authHandler,
+		JWTSecret:   cfg.JWTSecret,
 	})
 
 	log.Fatal(app.Listen(":" + cfg.AppPort))
