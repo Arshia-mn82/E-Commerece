@@ -12,7 +12,7 @@ func AuthRequired(jwtSecret string) fiber.Handler {
 
 	return func(c fiber.Ctx) error {
 		auth := c.Get("Authorization")
-		if auth == "" || strings.HasPrefix(auth, "Bearer ") {
+		if auth == "" || !strings.HasPrefix(auth, "Bearer ") {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "missing or invalid authorization header"})
 		}
 
